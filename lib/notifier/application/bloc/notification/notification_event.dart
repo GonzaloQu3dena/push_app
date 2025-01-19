@@ -22,3 +22,17 @@ class NotificationStatusChanged extends NotificationEvent {
 
   NotificationStatusChanged(this.status);
 }
+
+/// ### Notification Received Event
+/// This event is used to notify the [NotificationBloc] that a new notification has been received.
+/// 
+/// #### Properties
+/// - [pushMessage]: The notification that has been received.
+/// 
+/// #### Author
+/// Gonzalo Quedena
+class NotificationReceived extends NotificationEvent {
+  final PushMessage pushMessage;
+
+  NotificationReceived(this.pushMessage);
+}
