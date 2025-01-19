@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:push_app/notifier/application/bloc/notification/notification_bloc.dart';
+import 'package:push_app/notifier/domain/entities/push_message.dart';
 
 /// ### Home Screen
 /// This is the main screen of the application. It will display the list of licenses.
@@ -14,9 +15,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: context.select(
-          (NotificationBloc bloc) => Text('${bloc.state.status}') 
-        ),
+        title: context
+            .select((NotificationBloc bloc) => Text('${bloc.state.status}')),
         actions: [
           IconButton(
             onPressed: () {
@@ -41,11 +41,31 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notifications = context.watch<NotificationBloc>().state.notifications;
+
     return ListView.builder(
-      itemCount: 0,
+      itemCount: notifications.length,
       itemBuilder: (BuildContext context, int index) {
-        return const ListTile();
+        final notification = notifications[index];  
+        return _NotificationTile(notification: notification);
       },
+    );
+  }
+}
+
+class _NotificationTile extends StatelessWidget {
+  final PushMessage notification;
+
+  const _NotificationTile({required this.notification});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(notification.title),
+      subtitle: Text(notification.body),
+      leading: notification.imageUrl != null
+          ? Image.network(notification.imageUrl!)
+          : null,
     );
   }
 }
