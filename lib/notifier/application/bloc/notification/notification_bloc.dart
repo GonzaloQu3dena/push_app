@@ -24,6 +24,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 /// #### Methods
 /// - [requestPermission]: Requests the permission to send notifications.
 /// - [initialFirebase]: Initializes Firebase. It is a static method that should be called before creating an instance of this class.
+/// - [getMessageById]: Gets the message by its id.
+/// - [handleRemoteMessage]: Handles the remote message.
 ///
 /// #### Author
 /// Gonzalo Quedena
@@ -68,6 +70,26 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         .firstWhere((item) => item.messageId == pushMessageId);
   }
 
+    void handleRemoteMessage(RemoteMessage message) {
+    if (message.notification == null) return;
+
+    final notification = PushMessage(
+      messageId:
+          message.messageId?.replaceAll(':', '').replaceAll('%', '') ?? '',
+      title: message.notification!.title ?? '',
+      body: message.notification!.body ?? '',
+      sentDate: message.sentTime ?? DateTime.now(),
+      data: message.data,
+      imageUrl: Platform.isAndroid
+          ? message.notification!.android?.imageUrl
+          : message.notification!.apple?.imageUrl,
+    );
+
+    //print(notification.toString());
+
+    add(NotificationReceived(notification));
+  }
+
   // This method is used to check the initial status of the notifications.
   Future<void> _initialStatusCheck() async {
     final settings = await messaging.getNotificationSettings();
@@ -102,29 +124,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
-  // This method is used to handle the received notification when the app is in the foreground.
-  void _handleRemoteMessage(RemoteMessage message) {
-    if (message.notification == null) return;
-
-    final notification = PushMessage(
-      messageId:
-          message.messageId?.replaceAll(':', '').replaceAll('%', '') ?? '',
-      title: message.notification!.title ?? '',
-      body: message.notification!.body ?? '',
-      sentDate: message.sentTime ?? DateTime.now(),
-      data: message.data,
-      imageUrl: Platform.isAndroid
-          ? message.notification!.android?.imageUrl
-          : message.notification!.apple?.imageUrl,
-    );
-
-    //print(notification.toString());
-
-    add(NotificationReceived(notification));
-  }
-
   // This method is used to listen to the messages when the app is in the foreground.
   void _onForegroundMessage() {
-    FirebaseMessaging.onMessage.listen(_handleRemoteMessage);
+    FirebaseMessaging.onMessage.listen(handleRemoteMessage);
   }
 }
