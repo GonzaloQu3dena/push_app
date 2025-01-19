@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:push_app/shared/theme/app_theme.dart';
@@ -6,7 +7,7 @@ import 'package:push_app/notifier/application/bloc/notification/notification_blo
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationBloc.initializeFirebase();
 
   runApp(MultiBlocProvider(

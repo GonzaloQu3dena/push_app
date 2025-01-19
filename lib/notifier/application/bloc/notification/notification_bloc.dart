@@ -7,6 +7,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 part 'notification_event.dart';
 part 'notification_state.dart';
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore, make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('Handling a background message: ${message.messageId}');
+}
+
 /// ### Notification Bloc
 /// This bloc is responsible for handling the notification events. It uses the Firebase Messaging plugin to request permission for notifications.
 ///
@@ -26,6 +32,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<NotificationStatusChanged>(_notificationStatusChanged);
 
     _initialStatusCheck();
+    _onForegroundMessage();
   }
 
   void requestPermission() async {
@@ -72,5 +79,15 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       ),
     );
     _getFcmToken();
+  }
+
+  // This method is called when a remote message is received. 
+  void _handleRemoteMessage(RemoteMessage message) {
+    if (message.notification != null) return;
+  }
+  
+  // This method is called when the app is in the foreground. Foreground is when the app is open.
+  void _onForegroundMessage() {
+    FirebaseMessaging.onMessage.listen(_handleRemoteMessage);
   }
 }
