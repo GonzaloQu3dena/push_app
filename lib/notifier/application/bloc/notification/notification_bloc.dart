@@ -17,18 +17,17 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 /// ### Notification Bloc
 /// This class is used to manage the notification state of the application.
-/// 
+///
 /// #### Properties
 /// - [messaging]: The Firebase Messaging instance.
-/// 
+///
 /// #### Methods
 /// - [requestPermission]: Requests the permission to send notifications.
 /// - [initialFirebase]: Initializes Firebase. It is a static method that should be called before creating an instance of this class.
-/// 
+///
 /// #### Author
 /// Gonzalo Quedena
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-
   final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   NotificationBloc() : super(NotificationState()) {
@@ -57,6 +56,16 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+  }
+
+  PushMessage? getMessageById(String pushMessageId) {
+    final exists =
+        state.notifications.any((item) => item.messageId == pushMessageId);
+
+    if (!exists) return null;
+
+    return state.notifications
+        .firstWhere((item) => item.messageId == pushMessageId);
   }
 
   // This method is used to check the initial status of the notifications.
